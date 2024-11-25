@@ -1,34 +1,39 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PacienteService } from './paciente.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
+import { TypeOrmTestingConfig } from '../shared/testing-utils/typeorm-testing-config';
 import { PacienteEntity } from './paciente.entity/paciente.entity';
 import { Repository } from 'typeorm';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { PacienteMedicoService } from '../paciente-medico/paciente-medico.service';
 
 describe('PacienteService', () => {
   let service: PacienteService;
-  let repo: Repository<PacienteEntity>;
+  let repository: Repository<PacienteEntity>;
 
-  const mockPacienteRepo = {
-    save: jest.fn(),
-    findOne: jest.fn(), 
-    find: jest.fn(),
-    delete: jest.fn(),
+  // Mock básico para PacienteMedicoService
+  const mockPacienteMedicoService = {
+    addMedicoToPaciente: jest.fn(),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [...TypeOrmTestingConfig()],
       providers: [
         PacienteService,
         {
-          provide: getRepositoryToken(PacienteEntity),
-          useValue: mockPacienteRepo,
+          provide: PacienteMedicoService,
+          useValue: mockPacienteMedicoService, // Proveer el mock
         },
       ],
     }).compile();
 
     service = module.get<PacienteService>(PacienteService);
-    repo = module.get<Repository<PacienteEntity>>(getRepositoryToken(PacienteEntity));
+    repository = module.get<Repository<PacienteEntity>>(
+      getRepositoryToken(PacienteEntity),
+    );
+
+    await repository.clear();
   });
 
   it('Debe estar definido', () => {
@@ -37,37 +42,21 @@ describe('PacienteService', () => {
 
   describe('create', () => {
     it('Crea al paciente correctamente', async () => {
-      const paciente = {
-        id: '123',
-        nombre: 'Juan Pérez',
-        genero: 'Masculino',
-        diagnostico: [],
-        medicos: [],
-      } as PacienteEntity;
-
-  
-      mockPacienteRepo.save.mockResolvedValue(paciente);
+      const paciente = { id: '123', nombre: 'Juan Pérez', genero: 'Masculino' } as PacienteEntity;
 
       const result = await service.create(paciente);
+      const storedPaciente = await repository.findOne({ where: { id: paciente.id } });
 
-      expect(result).toEqual(paciente);
-      expect(mockPacienteRepo.save).toHaveBeenCalledWith(paciente);
+      expect(result).toEqual(storedPaciente);
+      expect(storedPaciente.nombre).toEqual(paciente.nombre);
     });
 
-    it('Debería arrojar error cuando el nombre del paciente tiene menos de 3 caracteres', async () => {
-      const paciente = {
-        id: '123',
-        nombre: 'Ju',
-        genero: 'Masculino',
-        diagnostico: [],
-        medicos: [],
-      } as PacienteEntity;
+    it('Debería arrojar error si el nombre es menor a 3 caracteres', async () => {
+      const paciente = { id: '123', nombre: 'Ju', genero: 'Masculino' } as PacienteEntity;
 
       await expect(service.create(paciente)).rejects.toThrowError(
-        new BadRequestException('El nombre del paciente debe tener al menos 3 caracteres'),
+        BadRequestException,
       );
-
-      expect(mockPacienteRepo.save).not.toHaveBeenCalled();
     });
   });
 });

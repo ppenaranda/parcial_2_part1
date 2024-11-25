@@ -1,0 +1,223 @@
+{
+	"info": {
+		"_postman_id": "0f35a706-fac9-4ec5-8977-dbec24bb2383",
+		"name": "Paciente-medico",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39375916",
+		"_collection_link": "https://red-shadow-223204.postman.co/workspace/My-Workspace~9a3222d3-7055-4eab-8797-242fda4076df/collection/39375916-0f35a706-fac9-4ec5-8977-dbec24bb2383?action=share&source=collection_link&creator=39375916"
+	},
+	"item": [
+		{
+			"name": "Agregar un médico a un paciente",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"pacienteId\": \"{{paciente_id}}\",\r\n  \"medicoId\": \"{{medico_id}}\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/v1/paciente/{{paciente_id}}/medico/{{medico_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"paciente",
+						"{{paciente_id}}",
+						"medico",
+						"{{medico_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener los médicos de un paciente",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/v1/paciente/{{paciente_id}}/medico",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"paciente",
+						"{{paciente_id}}",
+						"medico"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener médicos de un paciente que no existe",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Get expected error message\", function () {\r",
+							"    var data = pm.response.json();\r",
+							"    pm.expect(data.message).to.eql(\"Paciente no encontrado\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/v1/paciente/99999/medico",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"paciente",
+						"99999",
+						"medico"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar la relación entre paciente y médico",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {\r",
+							"    pm.response.to.have.status(204);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/v1/paciente/{{paciente_id}}/medico/{{medico_id}}",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"paciente",
+						"{{paciente_id}}",
+						"medico",
+						"{{medico_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar la relación entre un paciente y un médico inexistente",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 404\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Get expected error message\", function () {\r",
+							"    var data = pm.response.json();\r",
+							"    pm.expect(data.message).to.eql(\"Médico no asociado al paciente\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/v1/paciente/{{paciente_id}}/medico/999999999",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"v1",
+						"paciente",
+						"{{paciente_id}}",
+						"medico",
+						"999999999"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

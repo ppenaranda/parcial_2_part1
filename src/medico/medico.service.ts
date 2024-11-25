@@ -31,6 +31,15 @@ export class MedicoService {
     return await this.medicoRepository.find({ relations: ['pacientes'] });
   }
 
+  async update(id: string, medico: MedicoEntity): Promise<MedicoEntity> {
+    const existingMedico = await this.findOne(id); 
+    existingMedico.nombre = medico.nombre;
+    existingMedico.especialidad = medico.especialidad;
+    existingMedico.telefono = medico.telefono;
+
+    return await this.medicoRepository.save(existingMedico);
+  }
+
   async delete(id: string): Promise<void> {
     const medico = await this.findOne(id);
 

@@ -2,8 +2,9 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MedicoService } from './medico.service';
 import { MedicoEntity } from './medico.entity/medico.entity';
-import { PacienteEntity } from 'src/paciente/paciente.entity/paciente.entity'; // Importamos PacienteEntity
-import { PacienteModule } from 'src/paciente/paciente.module'; // Importamos PacienteModule
+import { PacienteEntity } from '../paciente/paciente.entity/paciente.entity'; // Importamos PacienteEntity
+import { PacienteModule } from '../paciente/paciente.module'; // Importamos PacienteModule
+import { MedicoController } from './medico.controller';
 
 @Module({
   imports: [
@@ -12,5 +13,6 @@ import { PacienteModule } from 'src/paciente/paciente.module'; // Importamos Pac
   ],
   providers: [MedicoService],
   exports: [MedicoService],
+  controllers: [MedicoController],
 })
 export class MedicoModule {}

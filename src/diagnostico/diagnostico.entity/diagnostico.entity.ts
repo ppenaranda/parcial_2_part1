@@ -1,6 +1,6 @@
 
 
-import { PacienteEntity } from "src/paciente/paciente.entity/paciente.entity";
+import { PacienteEntity } from "../../paciente/paciente.entity/paciente.entity";
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()

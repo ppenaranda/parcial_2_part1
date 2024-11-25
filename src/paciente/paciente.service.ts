@@ -2,9 +2,9 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PacienteEntity } from './paciente.entity/paciente.entity';
-import { DiagnosticoEntity } from 'src/diagnostico/diagnostico.entity/diagnostico.entity';
-import { MedicoEntity } from 'src/medico/medico.entity/medico.entity';
-import { PacienteMedicoService } from 'src/paciente-medico/paciente-medico.service'; // Importamos el servicio intermedio
+import { DiagnosticoEntity } from '../diagnostico/diagnostico.entity/diagnostico.entity';
+import { MedicoEntity } from '../medico/medico.entity/medico.entity';
+import { PacienteMedicoService } from '../paciente-medico/paciente-medico.service';
 
 @Injectable()
 export class PacienteService {
@@ -15,18 +15,23 @@ export class PacienteService {
     private readonly diagnosticoRepository: Repository<DiagnosticoEntity>,
     @InjectRepository(MedicoEntity)
     private readonly medicoRepository: Repository<MedicoEntity>,
-    private readonly pacienteMedicoService: PacienteMedicoService, // Inyectamos el servicio intermedio
+    private readonly pacienteMedicoService: PacienteMedicoService,
   ) {}
 
-  // Método para crear un paciente
   async create(paciente: PacienteEntity): Promise<PacienteEntity> {
     if (!paciente.nombre || paciente.nombre.length < 3) {
       throw new BadRequestException('El nombre del paciente debe tener al menos 3 caracteres');
     }
+    if (!['Masculino', 'Femenino'].includes(paciente.genero)) {
+      throw new BadRequestException('El género del paciente debe ser Masculino o Femenino');
+    }
+    const exists = await this.pacienteRepository.findOne({ where: { nombre: paciente.nombre } });
+    if (exists) {
+      throw new BadRequestException('El paciente ya existe');
+    }
     return await this.pacienteRepository.save(paciente);
   }
 
-  // Método para encontrar un paciente por ID
   async findOne(id: string): Promise<PacienteEntity> {
     const paciente = await this.pacienteRepository.findOne({ where: { id }, relations: ['diagnostico', 'medicos'] });
     if (!paciente) {
@@ -35,12 +40,20 @@ export class PacienteService {
     return paciente;
   }
 
-  // Método para listar todos los pacientes
   async findAll(): Promise<PacienteEntity[]> {
     return await this.pacienteRepository.find({ relations: ['diagnostico', 'medicos'] });
   }
 
-  // Método para eliminar un paciente (solo si no tiene diagnósticos asociados)
+  async update(id: string, paciente: PacienteEntity): Promise<PacienteEntity> {
+    const existingPaciente = await this.findOne(id); // Verificamos si el paciente existe
+
+    // Actualizamos los campos del paciente
+    existingPaciente.nombre = paciente.nombre;
+    existingPaciente.genero = paciente.genero;
+
+    return await this.pacienteRepository.save(existingPaciente); // Guardamos los cambios
+  }
+
   async delete(id: string): Promise<void> {
     const paciente = await this.findOne(id);
     if (paciente.diagnostico && paciente.diagnostico.length > 0) {
@@ -49,9 +62,11 @@ export class PacienteService {
     await this.pacienteRepository.delete(id);
   }
 
-  // Método para agregar un médico a un paciente (delegado al servicio PacienteMedicoService)
   async addMedicoToPaciente(pacienteId: string, medicoId: string): Promise<void> {
-    // Delegamos la lógica de agregar el médico al servicio intermedio
-    await this.pacienteMedicoService.addMedicoToPaciente(pacienteId, medicoId);
+    try {
+      await this.pacienteMedicoService.addMedicoToPaciente(pacienteId, medicoId);
+    } catch (error) {
+      throw new BadRequestException('No se pudo agregar el médico al paciente');
+    }
   }
 }
