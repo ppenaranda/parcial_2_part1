@@ -22,7 +22,7 @@ import { DiagnosticoEntity } from './diagnostico/diagnostico.entity/diagnostico.
       port: 5432, 
       username: 'postgres',
       password: 'postgres',
-      database: 'mi_base_de_datos',
+      database: 'Parcial',
       entities: [
         MedicoEntity, 
         PacienteEntity, 

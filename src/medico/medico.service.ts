@@ -2,15 +2,14 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MedicoEntity } from './medico.entity/medico.entity';
-import { PacienteEntity } from 'src/paciente/paciente.entity/paciente.entity';
+
 
 @Injectable()
 export class MedicoService {
   constructor(
     @InjectRepository(MedicoEntity)
     private readonly medicoRepository: Repository<MedicoEntity>,
-    @InjectRepository(PacienteEntity)
-    private readonly pacienteRepository: Repository<PacienteEntity>,
+
   ) {}
 
   async create(medico: MedicoEntity): Promise<MedicoEntity> {

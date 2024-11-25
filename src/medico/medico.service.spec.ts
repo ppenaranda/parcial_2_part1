@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MedicoService } from './medico.service';
+import { PacienteEntity } from 'src/paciente/paciente.entity/paciente.entity';
 
 describe('MedicoService', () => {
   let service: MedicoService;
